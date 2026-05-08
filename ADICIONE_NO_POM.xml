@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ╔══════════════════════════════════════════════════════════════════╗
+  ║  COLE ESTE TRECHO NO <build><plugins> DO SEU pom.xml            ║
+  ║  Projeto: acc.br.projetoFinal.Accenture                         ║
+  ╚══════════════════════════════════════════════════════════════════╝
+-->
+
+<!-- 1. JaCoCo padrão — coleta os dados de execução (.exec) -->
+<plugin>
+    <groupId>org.jacoco</groupId>
+    <artifactId>jacoco-maven-plugin</artifactId>
+    <version>0.8.11</version>
+    <executions>
+        <!-- Prepara o agente antes dos testes -->
+        <execution>
+            <id>jacoco-prepare</id>
+            <goals>
+                <goal>prepare-agent</goal>
+            </goals>
+        </execution>
+        <!-- Gera o relatório HTML padrão (opcional — pode remover) -->
+        <execution>
+            <id>jacoco-report</id>
+            <phase>verify</phase>
+            <goals>
+                <goal>report</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
+
+<!-- 2. Plugin customizado — gera o relatório visual positivo × negativo -->
+<plugin>
+    <groupId>br.com.jacoco</groupId>
+    <artifactId>jacoco-custom-report</artifactId>
+    <version>1.0.0</version>
+    <executions>
+        <execution>
+            <id>custom-jacoco-report</id>
+            <phase>verify</phase>   <!-- roda DEPOIS do jacoco:report -->
+            <goals>
+                <goal>custom-report</goal>
+            </goals>
+        </execution>
+    </executions>
+    <configuration>
+        <!--
+          Arquivo .exec gerado pelo JaCoCo.
+          Padrão: ${project.build.directory}/jacoco.exec
+        -->
+        <execFile>${project.build.directory}/jacoco.exec</execFile>
+
+        <!--
+          Pasta de saída do relatório customizado.
+          Abra: target/custom-jacoco-report/index.html
+        -->
+        <reportDir>${project.build.directory}/custom-jacoco-report</reportDir>
+
+        <!--
+          Diretório das classes compiladas (não altere normalmente).
+        -->
+        <classesDir>${project.build.outputDirectory}</classesDir>
+    </configuration>
+</plugin>

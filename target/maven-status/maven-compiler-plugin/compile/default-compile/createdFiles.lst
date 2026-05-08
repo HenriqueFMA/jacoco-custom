@@ -1,0 +1,3 @@
+br/com/jacoco/plugin/CustomReportMojo$TestClassInfo.class
+br/com/jacoco/plugin/CustomReportMojo.class
+br/com/jacoco/plugin/HtmlReportGenerator.class
