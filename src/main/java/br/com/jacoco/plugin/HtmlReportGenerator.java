@@ -28,6 +28,9 @@ public class HtmlReportGenerator {
         int linePct   = pct(lineTotal);
         int methodPct = pct(methodTotal);
 
+        // Porcentagem geral: média das 5 métricas
+        int overallPct = (instrPct + branchPct + linePct + methodPct + pct(classTotal)) / 5;
+
         int positiveOnly = 0, negativeOnly = 0, both = 0, none = 0;
         for (CustomReportMojo.TestClassInfo ti : testMap.values()) {
             if (ti.hasPositive && ti.hasNegative) both++;
@@ -45,7 +48,7 @@ public class HtmlReportGenerator {
         sb.append("<div class=\"sidebar\">");
         sb.append("<div class=\"logo\">");
         sb.append("<svg width=\"28\" height=\"28\" viewBox=\"0 0 28 28\" fill=\"none\">");
-        sb.append("<rect width=\"28\" height=\"28\" rx=\"8\" fill=\"#4f46e5\"/>");
+        sb.append("<rect width=\"28\" height=\"28\" rx=\"8\" fill=\"#A100FF\"/>");
         sb.append("<path d=\"M7 14 L12 19 L21 9\" stroke=\"white\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>");
         sb.append("</svg><span>JaCoCo+</span></div>");
         sb.append("<nav>");
@@ -75,6 +78,10 @@ public class HtmlReportGenerator {
 
         sb.append("<section id=\"overview\">");
         sb.append("<h2 class=\"section-title\">Cobertura geral</h2>");
+
+        // Card de porcentagem geral
+        sb.append(overallCard(overallPct));
+
         sb.append("<div class=\"metrics-grid\">");
         sb.append(metricCard("Instru\u00e7\u00f5es", instrPct,  instrTotal.getCoveredCount(),  instrTotal.getTotalCount()));
         sb.append(metricCard("Branches",    branchPct, branchTotal.getCoveredCount(), branchTotal.getTotalCount()));
@@ -160,6 +167,24 @@ public class HtmlReportGenerator {
         return sb.toString();
     }
 
+    private static String overallCard(int pct) {
+        String cls   = pct >= 70 ? "pass" : pct >= 30 ? "warn" : "fail";
+        String label = pct >= 70 ? "Cobertura satisfat\u00f3ria"
+                     : pct >= 30 ? "Cobertura parcial"
+                     :             "Cobertura insuficiente";
+        return "<div class=\"overall-card oc-" + cls + "\">" +
+               "<div class=\"oc-left\">" +
+               "<div class=\"oc-title\">Cobertura Total</div>" +
+               "<div class=\"oc-subtitle\">" + label + "</div>" +
+               "<div class=\"oc-bar-bg\"><div class=\"oc-bar-fill oc-bar-" + cls + "\" style=\"width:" + pct + "%\"></div></div>" +
+               "<div class=\"oc-legend\">M\u00e9dia de instru\u00e7\u00f5es, branches, linhas, m\u00e9todos e classes</div>" +
+               "</div>" +
+               "<div class=\"oc-right\">" +
+               "<div class=\"oc-pct oc-pct-" + cls + "\">" + pct + "<span class=\"oc-unit\">%</span></div>" +
+               "</div>" +
+               "</div>";
+    }
+
     private static String tsCard(String cssClass, String icon, String count, String label) {
         return "<div class=\"ts-card " + cssClass + "\">" +
                "<div class=\"ts-icon\">" + icon + "</div>" +
@@ -220,7 +245,7 @@ public class HtmlReportGenerator {
             "<link href=\"https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap\" rel=\"stylesheet\">" +
             "<style>" +
             "*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}" +
-            ":root{--bg:#0f1117;--bg2:#161b27;--bg3:#1d2335;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);--text:#e8eaf0;--text2:#8892a4;--text3:#5a6378;--accent:#4f46e5;--accent2:#6366f1;--pass:#22c55e;--pass-bg:rgba(34,197,94,0.12);--pass-border:rgba(34,197,94,0.25);--warn:#f59e0b;--warn-bg:rgba(245,158,11,0.12);--warn-border:rgba(245,158,11,0.25);--fail:#ef4444;--fail-bg:rgba(239,68,68,0.12);--fail-border:rgba(239,68,68,0.25);--pos:#22c55e;--pos-bg:rgba(34,197,94,0.10);--neg:#ef4444;--neg-bg:rgba(239,68,68,0.10);--both:#a78bfa;--both-bg:rgba(167,139,250,0.10);--none:#64748b;--none-bg:rgba(100,116,139,0.10)}" +
+            ":root{--bg:#0a0a0a;--bg2:#111111;--bg3:#1a1a1a;--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);--text:#f0f0f0;--text2:#a0a0a0;--text3:#606060;--accent:#A100FF;--accent2:#C84DFF;--pass:#00C853;--pass-bg:rgba(0,200,83,0.12);--pass-border:rgba(0,200,83,0.30);--warn:#FF9D00;--warn-bg:rgba(255,157,0,0.12);--warn-border:rgba(255,157,0,0.30);--fail:#FF3D3D;--fail-bg:rgba(255,61,61,0.12);--fail-border:rgba(255,61,61,0.30);--pos:#00C853;--pos-bg:rgba(0,200,83,0.10);--neg:#FF3D3D;--neg-bg:rgba(255,61,61,0.10);--both:#C84DFF;--both-bg:rgba(200,77,255,0.10);--none:#606060;--none-bg:rgba(96,96,96,0.10)}" +
             "html{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);scroll-behavior:smooth}" +
             "body{display:flex;min-height:100vh}" +
             ".sidebar{width:220px;min-height:100vh;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:1.5rem 1rem;position:sticky;top:0;height:100vh}" +
@@ -228,7 +253,7 @@ public class HtmlReportGenerator {
             "nav{display:flex;flex-direction:column;gap:4px}" +
             ".nav-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;color:var(--text2);text-decoration:none;font-size:14px;transition:all 0.15s}" +
             ".nav-item:hover,.nav-item.active{background:var(--bg3);color:var(--text)}" +
-            ".nav-item.active{color:var(--accent2)}" +
+            ".nav-item.active{color:var(--accent2);border-left:2px solid var(--accent);padding-left:10px}" +
             ".sidebar-footer{margin-top:auto;font-size:11px;color:var(--text3);line-height:1.6;padding:12px;background:var(--bg3);border-radius:8px}" +
             ".main{flex:1;padding:2rem 2.5rem;max-width:1100px}" +
             ".topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:2rem;flex-wrap:wrap}" +
@@ -236,12 +261,27 @@ public class HtmlReportGenerator {
             ".subtitle{font-size:13px;color:var(--text2);margin-top:4px}" +
             ".legend-pills{display:flex;gap:8px;flex-wrap:wrap;align-items:center}" +
             ".pill{font-size:12px;font-weight:500;padding:4px 12px;border-radius:20px}" +
-            ".pill-pos{background:var(--pos-bg);color:var(--pos);border:1px solid rgba(34,197,94,0.2)}" +
-            ".pill-neg{background:var(--neg-bg);color:var(--neg);border:1px solid rgba(239,68,68,0.2)}" +
-            ".pill-both{background:var(--both-bg);color:var(--both);border:1px solid rgba(167,139,250,0.2)}" +
-            ".pill-none{background:var(--none-bg);color:var(--none);border:1px solid rgba(100,116,139,0.2)}" +
+            ".pill-pos{background:var(--pos-bg);color:var(--pos);border:1px solid rgba(0,200,83,0.25)}" +
+            ".pill-neg{background:var(--neg-bg);color:var(--neg);border:1px solid rgba(255,61,61,0.25)}" +
+            ".pill-both{background:var(--both-bg);color:var(--both);border:1px solid rgba(200,77,255,0.25)}" +
+            ".pill-none{background:var(--none-bg);color:var(--none);border:1px solid rgba(96,96,96,0.25)}" +
             "section{margin-bottom:3rem}" +
             ".section-title{font-size:15px;font-weight:600;color:var(--text2);letter-spacing:0.04em;text-transform:uppercase;margin-bottom:1rem}" +
+            ".overall-card{display:flex;align-items:center;justify-content:space-between;gap:2rem;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin-bottom:1.5rem}" +
+            ".oc-pass{border-left:4px solid var(--pass)}.oc-warn{border-left:4px solid var(--warn)}.oc-fail{border-left:4px solid var(--fail)}" +
+            ".oc-left{flex:1}" +
+            ".oc-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px}" +
+            ".oc-subtitle{font-size:18px;font-weight:600;color:var(--text);margin-bottom:14px}" +
+            ".oc-bar-bg{height:8px;background:var(--bg3);border-radius:4px;overflow:hidden;margin-bottom:8px}" +
+            ".oc-bar-fill{height:100%;border-radius:4px}" +
+            ".oc-bar-pass{background:linear-gradient(90deg,var(--pass),#00E676)}" +
+            ".oc-bar-warn{background:linear-gradient(90deg,var(--warn),#FFB300)}" +
+            ".oc-bar-fail{background:linear-gradient(90deg,var(--fail),#FF6B6B)}" +
+            ".oc-legend{font-size:11px;color:var(--text3)}" +
+            ".oc-right{text-align:right;flex-shrink:0}" +
+            ".oc-pct{font-size:56px;font-weight:700;font-family:'JetBrains Mono',monospace;line-height:1}" +
+            ".oc-pct-pass{color:var(--pass)}.oc-pct-warn{color:var(--warn)}.oc-pct-fail{color:var(--fail)}" +
+            ".oc-unit{font-size:26px;font-weight:400}" +
             ".metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:1.5rem}" +
             ".metric-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px}" +
             ".mc-pass{border-top:2px solid var(--pass)}.mc-warn{border-top:2px solid var(--warn)}.mc-fail{border-top:2px solid var(--fail)}" +
@@ -276,10 +316,10 @@ public class HtmlReportGenerator {
             ".badge-pass{background:var(--pass-bg);color:var(--pass);border:1px solid var(--pass-border)}" +
             ".badge-warn{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn-border)}" +
             ".badge-fail{background:var(--fail-bg);color:var(--fail);border:1px solid var(--fail-border)}" +
-            ".badge-pos{background:var(--pos-bg);color:var(--pos);border:1px solid rgba(34,197,94,0.2)}" +
-            ".badge-neg{background:var(--neg-bg);color:var(--neg);border:1px solid rgba(239,68,68,0.2)}" +
-            ".badge-both{background:var(--both-bg);color:var(--both);border:1px solid rgba(167,139,250,0.2)}" +
-            ".badge-none{background:var(--none-bg);color:var(--none);border:1px solid rgba(100,116,139,0.2)}" +
+            ".badge-pos{background:var(--pos-bg);color:var(--pos);border:1px solid rgba(0,200,83,0.25)}" +
+            ".badge-neg{background:var(--neg-bg);color:var(--neg);border:1px solid rgba(255,61,61,0.25)}" +
+            ".badge-both{background:var(--both-bg);color:var(--both);border:1px solid rgba(200,77,255,0.25)}" +
+            ".badge-none{background:var(--none-bg);color:var(--none);border:1px solid rgba(96,96,96,0.25)}" +
             ".bar-wrap{display:flex;align-items:center;gap:8px}" +
             ".bar-bg{flex:1;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;min-width:70px}" +
             ".bar-fill{height:100%;border-radius:3px}" +
@@ -293,10 +333,10 @@ public class HtmlReportGenerator {
             ".fpill{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:4px 14px;font-size:12px;cursor:pointer;color:var(--text2);transition:all 0.15s}" +
             ".fpill:hover{border-color:var(--border2);color:var(--text)}" +
             ".fpill.active{background:var(--accent);color:white;border-color:var(--accent)}" +
-            ".fpill-pos.active{background:rgba(34,197,94,0.2);border-color:rgba(34,197,94,0.4);color:var(--pos)}" +
-            ".fpill-neg.active{background:rgba(239,68,68,0.2);border-color:rgba(239,68,68,0.4);color:var(--neg)}" +
-            ".fpill-both.active{background:rgba(167,139,250,0.2);border-color:rgba(167,139,250,0.4);color:var(--both)}" +
-            ".fpill-none.active{background:rgba(100,116,139,0.2);border-color:rgba(100,116,139,0.4);color:var(--none)}" +
+            ".fpill-pos.active{background:rgba(0,200,83,0.20);border-color:rgba(0,200,83,0.40);color:var(--pos)}" +
+            ".fpill-neg.active{background:rgba(255,61,61,0.20);border-color:rgba(255,61,61,0.40);color:var(--neg)}" +
+            ".fpill-both.active{background:rgba(200,77,255,0.20);border-color:rgba(200,77,255,0.40);color:var(--both)}" +
+            ".fpill-none.active{background:rgba(96,96,96,0.20);border-color:rgba(96,96,96,0.40);color:var(--none)}" +
             "tr.hidden{display:none}" +
             "</style></head>";
     }
