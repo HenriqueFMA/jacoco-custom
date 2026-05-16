@@ -85,7 +85,14 @@ target/custom-jacoco-report/index.html
 Para abrir direto no browser:
 
 ```bash
+Linux
+
 xdg-open ~/Área\ de\ Trabalho/Accenture/projeto/Back-End/Accenture/target/custom-jacoco-report/index.html
+
+Windows
+start "" "%USERPROFILE%\Desktop\Accenture\projeto\Back-End\Accenture\target\custom-jacoco-report\index.html"
+
+obs: Ajustar caminho
 ```
 
 ---
